@@ -1,0 +1,69 @@
+# ----------------------------------------------
+# Para descargar blast+:
+# 1. Descargamos blast+ de ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
+# 2. Tenemos su manual aquí: http://www.ncbi.nlm.nih.gov/books/NBK1762/
+# 3. Descomprimimos a la carpeta que queramos
+# 4. En dicha carpeta introducimos el fichero hbb.txt, y ejecutamos la orden vista (o cualquier otra)
+# Posibles problemas:
+# 1) No encuentra el programa
+# melchior:bin rodri$ blastp -query ../../blast/hbb.fa -remote -db nr -out test_query.fa -bash: blastp: command not found
+# Estamos en la carpeta correcta, pero no encuentra el programa, dando un error tipo “command not found”.   
+# En Linux (y si usas Mac, por debajo también tienes un sistema tipo Unix) necesitamos indicar la carpeta en la que estamos para ejecutar algo. En este caso, la carpeta actual (se expresa con su ruta completa, o con “.”), con lo cual:
+./blastp -query blast/hbb.fa -remote -db nr -out test_query.fa
+# debería funcionar.
+# 2) No encuentra el fichero con las secuencias de consulta
+# melchior:bin rodri$ ./blastp -query hbb.fa -remote -db nr -out test_query.fa
+# Command line argument error: Argument "query". File is not accessible: `blast/hbb.txt'
+# Asegúrate de que la ruta al fichero es correcta, seguramente hbb.fa no esté en la misma carpeta que el resto de blast, o tenga otro nombre
+# Opcional: podemos configurar nuestro perfil de usuario para no tener que ejecutar BLAST desde su carpeta de instalación:
+# Windows: pinchar con el botón derecho en el icono de “Mi PC” o “Equipo”, seleccionar “Propiedades”, y luego la pestaña “Avanzada”, botón “Variables de entorno...”. Allí, en variables del sistema, buscamos PATH, la seleccionamos y le damos a “Editar...”. En el campo “valor de la variable”, sin borrar lo que haya, añadimos un ; al final, y después la dirección de la carpeta donde hemos instalado blast. Salimos dando a “Aceptar” a todo y reiniciamos el ordenador. Ahora desde el terminal podremos ejecutar blast desde cualquier ubicación.
+#  Linux/Mac: en la carpeta del usuario (podemos volver a ella con el comando “cd”), podemos listar los ficheros ocultos (empiezan por un punto), y tendremos alguno de nombre profile o similar (en Mac es .profile, en algunos Linux .bash_profile, etc.). Debemos abrir ese fichero con un editor de texto, y al final del mismo añadir la línea export PATH=$PATH:/ruta/completa/al/directorio/de/instalación/de/blast/bin. Es muy importante que apuntemos a la carpeta “bin” dentro del directorio de instalación. Guardamos el fichero y reiniciamos el terminal para poder ejecutar blast desde cualquier ubicación.
+# 3) No encuentra la base de datos de búsqueda:
+# melchior:blast rodri$ blastp -query hbb.fa -db nr -out test_query.fa
+# BLAST Database error: No alias or index file found for protein database [nr] in search path [/Users/rodri/Documents/docencia/bioinformatica/programas/blast::]
+# En principio, usaremos las bases de datos del NCBI, por lo que tenemos que especificar el parámetro –remote. Si queremos usar bases de datos locales, debemos bajarnos la base de datos que queramos del NCBI antes, y especificar la ruta completa a su ubicación en el parámetro -db
+# 4) Errores con el formato de entrada Puede que veamos errores raros tipo éste:
+# melchior:blast rodri$ blastp -query hbb.docx -db nr -out test_query.fa -remote Error: NCBI C++ Exception:
+# "/am/ncbiapdata/release/blast/src/2.2.25/IntelMAC-universal/c++/GCC401-ReleaseMT- -IntelMAC-universal/../src/objtools/readers/fasta.cpp", line 592: Error: ncbi::objects::CFastaReader::CheckDataLine() - CFastaReader: Input not marked as defline or comment, but contains too many special characters to be plausible data (m_Pos = 1)
+# Generalmente esto ocurre si nuestro texto de entrada contiene caracteres raros. NO editéis los ficheros de secuencias con programas de edición complicados tipo Word u OpenOffice, pues añaden caracteres especiales sobre el formato, que no necesitamos. Utilizad en su lugar NotePad (Windows), gedit (Linux) o TextEdit (Mac), o similares.
+# ----------------------------------------------
+#
+#
+# EJERCICIO 1
+#
+# Descarga blast+ del NCBI. Esta es la herramienta para uso local del BLAST del NCBI. La descarga e instalación tarda apenas unos segundos, y es una herramienta muy útil para hacer búsquedas BLAST muy grandes, que podrían sobrecargar el servidor web del NCBI.
+# blast+ funciona sólo desde la línea de comandos.
+# 1. Crea un fichero hbb.fa que contenga la hemoglobina beta humana en formato fasta:
+# >gi|4504349|ref|NP_000509.1| beta globin [Homo sapiens] MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLG AFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVAN ALAHKYH
+# 2. Invoca BLAST desde la línea de comandos para realizar una búsqueda en la base de datos no redundante (nr):
+blastp -query hbb.fa –remote -db nr -out hbb.txt
+# blastp es el programa (igualmente tenemos blastn, blastx, etc.)
+# –query, -remote, -db y –out indican distintos parámetros, seguidos de los valores que toman (si necesitan valor)
+# –query indica el fichero de entrada (hbb.fa)
+# –remote indica que la base de datos a utilizar va a buscarla en los servidores de NCBI (si no usamos este argumento buscará la base de datos en el directorio donde está la query)
+# –db indica la base de datos (nr en nuestro caso)
+# –out indica el fichero de salida (lo llamaremos hbb.txt)
+#
+# Inspecciona la salida que resulta (hbb.txt:
+# ¿Cuál es el E-valor del mejor alineamiento?
+# ¿Cuál es el espacio de búsqueda? (aparece al final del documento, en el resumen de los parámetros)?
+# La opción –searchsp sirve para limitar el espacio de búsqueda. 
+# Ejecuta denuevo con –searchsp 40000000 (40 millones) y guarda en otro fichero la salida (hbb2.txt).
+#
+#
+# EJERCICIO 2
+#
+# Blast+ es una buena opción para hacer trabajos en segundo plano o “batch” (es decir, dejar muchas búsquedas BLAST ejecutándose, sin tener los resultados inmediatamente).
+# Vamos a hacer una búsqueda con blast+ de tres proteínas Para el parásito de la malaria Plasmodium falciparum: 
+# beta globina humana 
+# odorant-binding protein bovina
+# citocromo b
+# >gi|4504349|ref|NP_000509.1| beta globin [Homo sapiens] MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLG AFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVAN ALAHKYH
+# >gi|129022|sp|P07435|OBP_BOVIN Odorant-binding protein (OBP) (Olfactory mucosa pyrazine-binding protein) AQEEEAEQNLSELSGPWRTVYIGSTNPEKIQENGPFRTYFRELVFDDEKGTVDFYFSVKRDGKWKNVHVK ATKQDDGTYVADYEGQNVFKIVSLSRTHLVAHNINVDKHGQTTELTELFVKLNVEDEDLEKFWKLTEDKG IDKKNVVNFLENEDHPHPE
+# >gi|11466247|ref|NP_059668.1| cytochrome b [Plasmodium falciparum] MNFYSINLVKAHLINYPCPLNINFLWNYGFLLGIIFFIQIITGVFLASRYTPDVSYAYYSIQHILRELWS GWCFRYMHATGASLVFLLTYLHILRGLNYSYMYLPLSWISGLILFMIFIVTAFVGYVLPWGQMSYWGATV ITNLLSSIPVAVIWICGGYTVSDPTIKRFFVLHFILPFIGLCIVFIHIFFLHLHGSTNPLGYDTALKIPF YPNLLSLDVKGFNNVIILFLIQSLFGIIPLSHPDNAIVVNTYVTPSQIVPEWYFLPFYAMLKTVPSKPAG LVIVLLSLQLLFLLAEQRSLTTIIQFKMIFGARDYSVPIIWFMCAFYALLWIGCQLPQDIFILYGRLFIV LFFCSGLFVLVHYRRTHYDYSSQANI
+# Guarda las tres secuencias en un archivo 3proteins.fasta y realiza una búsqueda blastp:
+blastp -query 3proteins.fasta –remote -db refseq_protein -out 3proteins_out.txt
+# El fichero de salida 3proteins_out.txt contendrá los resultados para tres búsquedas blastp, una por cada secuencia fasta encontrada en el fichero de entrada.
+#
+#
+# Crea un archivo PDF donde documentes el procedimiento y los resultados de ambos ejercicios.
