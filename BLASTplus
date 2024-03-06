@@ -66,4 +66,4 @@ blastp -query 3proteins.fasta –remote -db refseq_protein -out 3proteins_out.tx
 # El fichero de salida 3proteins_out.txt contendrá los resultados para tres búsquedas blastp, una por cada secuencia fasta encontrada en el fichero de entrada.
 #
 #
-# Crea un archivo PDF donde documentes el procedimiento y los resultados de ambos ejercicios.
+
